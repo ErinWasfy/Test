@@ -1,6 +1,10 @@
 node {
     stage ("checkout") {
-        checkout scm
+         git(
+       url: 'https://github.com/TestUserEME/Test.git',
+       credentialsId: 'githubaccount',
+       branch: "master"
+    )
     }
     stage("test") {
         sh('bin/run_all_tests.sh')
