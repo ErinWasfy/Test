@@ -1,0 +1,70 @@
+/*node
+{
+stage('Clone Repo')
+{
+    
+     git(
+       url: 'https://github.com/TestUserEME/Test.git',
+       credentialsId: 'githubaccount',
+       branch: "master"
+    )
+}
+  def tag = sh(returnStdout: true, script: "git tag --contains | head -1").trim()
+    if (tag) {
+        stage("deploy") {
+            sh 'echo "hh"'//'bin/build_and_publish.sh'
+        }
+    }
+
+}*/
+node {
+    git url: 'https://github.com/TestUserEME/Test.git'
+    env.GIT_TAG_NAME = gitTagName()
+    env.GIT_TAG_MESSAGE = gitTagMessage()
+}
+
+/** @return The tag name, or `null` if the current commit isn't a tag. */
+String gitTagName() {
+    commit = getCommit()
+    if (commit) {
+        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'githubaccount', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD']]) {
+ //sh("git config credential.helper '!f() { echo password=GIT_PASSWORD; }; f'")
+   // sh("GIT_ASKPASS=true git push origin --tags")
+    sh("git remote -v")
+  sh("git show-ref")
+  sh("git config --replace-all user.email 'rena4242@hotmail.com'")
+sh("git config --replace-all user.name 'TestUserEME'")
+  sh("git tag -a ${BUILD_NUMBER} -m 'git sha is GIT_COMMIT'")
+ desc= sh('git push origin HEAD:master --tags')
+  //  sh("git tag -a some_tag -m 'Jenkins'")
+  // desc=sh("git remote add push https://${env.GIT_USERNAME}:${env.GIT_PASSWORD}@github.com/Test.git --tags")
+}
+       // desc = sh(script: "git tag v1.55545465457", returnStdout: true)?.trim()
+        if (isTag(desc)) {
+            return desc
+        }
+    }
+    return null
+}
+
+/** @return The tag message, or `null` if the current commit isn't a tag. */
+String gitTagMessage() {
+    name = gitTagName()
+    msg = sh(script: "git tag -n10000 -l ${name}", returnStdout: true)?.trim()
+    if (msg) {
+        return msg.substring(name.size()+1, msg.size())
+    }
+    return null
+}
+
+String getCommit() {
+    return sh(script: 'git rev-parse HEAD', returnStdout: true)?.trim()
+}
+
+@NonCPS
+boolean isTag(String desc) {
+    match = desc =~ /.+-[0-9]+-g[0-9A-Fa-f]{6,}$/
+    result = !match
+    match = null // prevent serialisation
+    return result
+}
