@@ -1,0 +1,256 @@
+ properties([parameters([choice(choices: ['Master', 'Trunk'], description: '', name: 'Branch'),
+ gitParameter(branch: '${Branch}', branchFilter: '${Branch}', description: '', name: 'tst', 
+quickFilterEnabled: false, selectedValue: 'NONE', sortMode: 'NONE', tagFilter: '*', 
+type: 'PT_TAG')]
+ )])
+ node
+{
+
+   //shortCommit1 = sh(returnStdout: true, script: 'git log --pretty=oneline | head -1').trim() 
+   // shortCommit1 = sh(returnStdout: true, script: 'git log -1 --abbrev-commit').trim()//sh(returnStdout: true, script: "git log --pretty=format:'%h'").trim()
+//echo "${shortCommit1}"
+//if (env.GIT_COMMIT != env.GIT_PREVIOUS_SUCCESSFUL_COMMIT) 
+   //{
+     //  git url: 'https://tfs.emeint.net/tfs/JAVA/_git/mSales'
+git url:'https://tfs.emeint.net/tfs/JAVA/_git/mSales',branch:"${params.Branch}",credentialsId:'Myaccount'
+sh 'git branch -r'//| awk \'{print $1}\' ORS=\'\\n\' >branches.txt'
+//sh "'cut -d '/' -f 2 branches.txt > branch.txt'" 
+  // env.GIT_TAG_NAME = gitTagName()
+
+  //  env.GIT_TAG_MESSAGE = gitTagMessage()
+    tool name: 'Maven_2.0.9', type: 'maven'
+   /* stage ('Clean Workspace'){
+        cleanWs()
+    }
+     */
+  // stage ('Clone Repo'){
+    //   echo "Pulling out SCM from Branch: ${params.Branch}"
+//checkout([$class: 'GitSCM', branches: [[name: '*/${parmas.Branch}']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'MyAccount', url: 'https://tfs.emeint.net/tfs/JAVA/_git/mSales']]])
+   //  git url:'https://tfs.emeint.net/tfs/JAVA/_git/mSales',branch:"${params.Branch}",credentialsId: 'MyAccount'
+   //}
+  stage('Create Tags'){
+      withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'MyAccount',branch:"${params.Branch}", usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD']]) {
+
+ //sh("git config credential.helper '!f() { echo password=GIT_PASSWORD; }; f'")
+
+   // sh("GIT_ASKPASS=true git push origin --tags")
+
+   // sh("git remote -v")
+
+ // sh("git show-ref")
+
+  //sh("git config --replace-all user.email 'erin.saad@emeint.net'")
+
+//sh("git config --replace-all user.name 'erin.saad'")
+//sh("git checkout -b master")
+ //sh ("git config --replace-all credential.helper manager")
+// sh('git push origin :refs/tags/${BUILD_NUMBER}')
+//input(GIT_PASSWORD);
+//sh("git config --replace-all credential.helper 'wincred'")
+//sh("git add pom.xml")
+sh("git commit --amend -m 'New commit message'")
+shortCommit = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()//sh(returnStdout: true, script: "git log --pretty=format:'%h'").trim()
+ 
+ //shortCommit = sh(returnStdout: true, script: 'git log -1 --short HEAD').trim()//sh(returnStdout: true, script: "git log --pretty=format:'%h'").trim()
+ 
+sh("git tag -a ${shortCommit} -m 'tt'")
+  //sh ("npm version ${env.RELEASE_TYPE}")
+                       // sh "git push origin HEAD:master --follow-tags"
+                       // sh "npm publish"
+ sh("git push origin ${shortCommit}")
+  // sh("git tag -a some_tag -m 'Jenkins'")
+
+// desc=sh("git push https://erin.saad:${env.GIT_PASSWORD}@tfs/JAVA/_git/mSales --tags")
+
+}
+  }
+ //stage('Clean Up'){
+   //  bat "ant -buildfile msales/msales-server/msales-build/build.xml clean-all"
+ //}
+  /*   stage ('Build Admin')
+    {
+      //  bat "mvn -f msales/msalesadmin/pom.xml compile"
+      //  bat "mvn -f msales/msalesadmin/pom.xml dependency:copy-dependencies -o"
+          withAnt(installation: 'Ant_1_9_4', jdk: 'JAVA_HOME') {
+           // target('test')
+           
+           
+        // buildFile('MSALES/msales-server/msales-build/build-gwt.xml')
+            bat "ant -buildfile MSALES/msales-server/msales-build/build-gwt.xml"
+           
+        }
+          bat "mvn -f msales/msalesadmin/pom.xml dependency:copy-dependencies -o"
+           bat "mvn -f msales/msalesadmin/pom.xml compile"
+    }*/
+  /*     stage ('Build admin1')
+    {
+    bat "mvn -f parent-pom/pom.xml clean install -Dmaven.test.skip=true"
+    bat "mvn -f msales/pom.xml clean install -Dmaven.test.skip=true"
+      // bat "ant -buildfile msales/msales-server/msales-build/build.xml clean-all"
+// bat "mvn -f ./pom.xml clean install"
+ //parent-pom
+ bat "mvn -f emeint-server-base/pom.xml clean install -Dmaven.test.skip=true"
+//bat "mvn -f gps-tracker/pom.xml clean install -Dmaven.test.skip=true"
+ 
+  
+      //   bat "mvn -f ./pom.xml clean install"
+ 
+    //   bat "mvn -f msales/pom.xml clean install"
+      
+       //  maven 'Maven_2.0.9'
+       // sh 'mvn -f emeint-server-base/pom.xml clean install'
+    }
+    */
+  
+   /* stage ('Tag your development'){
+      withCredentials([usernamePassword(credentialsId: 'git-pass-credentials-ID', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+    sh("git tag -a some_tag -m 'Jenkins'")
+    sh('git push https://${GIT_USERNAME}:${GIT_PASSWORD}@<REPO> --tags')
+}
+    }*/
+  /*  stage('GWT Compile')
+    {
+         withAnt(installation: 'Ant_1_9_4', jdk: 'JAVA_HOME') {
+           // target('test')
+           
+           
+        // buildFile('MSALES/msales-server/msales-build/build-gwt.xml')
+            bat "ant -buildfile MSALES/msales-server/msales-build/build-gwt.xml -lib %GWT%"
+           
+        }
+    }*/
+    stage('Pull Wars to warsFolder')
+    {
+     //   git 'push tag v1.1'
+//sh 'git merge develop'
+//sh 'git commit -am "Merged develop branch to master'
+//sh "git push origin master"
+        withAnt(installation: 'Ant_1_9_4', jdk: 'JAVA_HOME') {
+           // target('test')
+           
+           
+        // buildFile('MSALES/msales-server/msales-build/build-gwt.xml')
+       //  bat "ant -buildfile msales/msales-server/msales-build/build.xml save-wars -Doutput.folder=warfolder"
+        //  bat "ant -buildfile msales/msales-server/msales-build/build.xml rename-wars"
+       bat "ant -buildfile msales/msales-server/msales-build/build.xml edit-release-notes-file -DmsalesVersion=${build_Number} -DbuildTimestamp=${BUILD_TIMESTAMP} -Dusername=${username} -DbuildNumber=${build_Number} -DbuildTimestamp=${BUILD_TIMESTAMP} -DbranchName=${params.Branch} "//-DemeintServerBaseVersion=${GIT_COMMIT} -DgpsTrackerVersion=${GIT_COMMIT} -DmsalesVersion=${GIT_COMMIT}"
+     
+     bat "ant -buildfile msales/msales-server/msales-build/build.xml set-release-info -Dusername=${username} -DbuildNumber=${build_Number} -DbuildTimestamp=${BUILD_TIMESTAMP} -DbranchName=${params.Branch} "//-DemeintServerBaseVersion=${GIT_COMMIT} -DgpsTrackerVersion=${GIT_COMMIT} -DmsalesVersion=${GIT_COMMIT}"
+       // bat 'svn update --accept'  
+       // bat "ant -buildfile msales/msales-server/msales-build/build.xml Copy-Appstore -Doutput.folder=warfolder.zip"
+            
+        }
+       
+    }
+      /*  stage ('Send an email'){
+        echo "Send an email to ${params.Branch}"
+        
+        mail bcc: '', body: 'test', cc: '', from: 'erin.saad@emeint.net', replyTo: '', subject: 'Test Jenkins', to: 'erin.saad@emeint.net'
+       }
+       stage ('Test SCM')
+       {
+           echo "Test"
+       }
+        stage ('Deploy')
+       {
+           echo "Deploy to Container"
+       }
+       */
+  // }
+}
+String gitTagName() {
+
+    commit = getCommit()
+
+    if (commit) {
+
+        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'MyAccount',branch:"${params.Branch}", usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD']]) {
+  //sh("git config --replace-all credential.helper 'wincred'")
+//sh("git add pom.xml")
+//sh("git commit --amend -m 'New commit message'")
+ sh("git tag -a ${commit}-${BUILD_NUMBER} -m 'tt'")
+  //sh ("npm version ${env.RELEASE_TYPE}")
+                       // sh "git push origin HEAD:master --follow-tags"
+                       // sh "npm publish"
+ desc=sh ("git push origin ${commit}-${BUILD_NUMBER}")
+ //sh("git config credential.helper '!f() { echo password=GIT_PASSWORD; }; f'")
+
+   // sh("GIT_ASKPASS=true git push origin --tags")
+
+   // sh("git remote -v")
+
+ // sh("git show-ref")
+
+  //sh("git config --replace-all user.email 'erin.saad@emeint.net'")
+
+//sh("git config --replace-all user.name 'erin.saad'")
+
+ //sh ("git config --replace-all credential.helper manager")
+//desc= sh('git push origin :refs/tags/${BUILD_NUMBER}')
+//input(GIT_PASSWORD);
+//sh("git add pom.xml")
+//sh("git commit --amend -m 'New commit message'")
+//sh("git tag -a v1.55592 -m 'git sha is GIT_COMMIT'")
+ //sh('git push origin v1.55592')
+  //  sh("git tag -a some_tag -m 'Jenkins'")
+
+// desc=sh("git push https://erin.saad:${env.GIT_PASSWORD}@tfs/JAVA/_git/mSales --tags")
+
+}
+
+       // desc = sh(script: "git tag v1.55545465457", returnStdout: true)?.trim()
+
+        if (isTag(desc)) {
+
+            return desc
+
+        }
+
+    }
+
+    return null
+
+}
+
+
+
+/** @return The tag message, or `null` if the current commit isn't a tag. */
+
+/*String gitTagMessage() {
+
+    name = gitTagName()
+
+    msg = sh(script: "git tag -n10000 -l ${name}", returnStdout: true)?.trim()
+
+    if (msg) {
+
+        return msg.substring(name.size()+1, msg.size())
+
+    }
+
+    return null
+
+}
+*/
+
+
+String getCommit() {
+
+    return sh(script: 'git rev-parse HEAD', returnStdout: true)?.trim()
+
+}
+
+
+
+@NonCPS
+
+boolean isTag(String desc) {
+
+    match = desc =~ /.+-[0-9]+-g[0-9A-Fa-f]{6,}$/
+
+    result = !match
+
+    match = null // prevent serialisation
+
+    return result
+
+}
